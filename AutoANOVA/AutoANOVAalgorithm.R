@@ -3,6 +3,10 @@
 # The grouping variable must be named 'Group' 
 # The mainwd dir may be changed
 # The algorithm by default ignores columns with all missing values
+#
+# Copyright: Ilia Fastovets (2017)
+# Contact: fastovetsilya@yandex.ru
+
 
 library('readxl')
 library('coin')
