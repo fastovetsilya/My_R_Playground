@@ -1,3 +1,20 @@
+# Statistical analysis of mitotic index and disorders in cells based on
+#   Fisher's exact test an Clopper-Pearson exact confidence intervals.
+# The input is an .xlsx data matrix with any number of raws/columns.
+#   However, the first 3 columns must be 'Group', 'Total', 'Dividing'.
+#   The data is raw numbers of cells by replications. The data is 
+#   grouped automatically by the algorithm.
+# The output are plots of MI and disorders (individual and grouped)
+#   and tables of proportions, confidence intervals and p-values. The
+#   algorithms outputs raw p-values as well as adjusted p-values. By
+#   default, Benjamini-Hochberg & Yekutielli p-value adjustment is used.
+# This program is developed for citotoxicity/genotoxicity analysis of
+#   allium root tip cells (allium-test).
+#
+# Copyright: Ilia Fastovets (2018)
+# Contact: fastovetsilya@yandex.ru
+
+
 library('readxl')
 library('ggplot2')
 library('reshape2')
