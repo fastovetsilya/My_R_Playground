@@ -3,6 +3,9 @@
 # The grouping variable must be named 'Group' 
 # The mainwd dir may be changed
 # The algorithm by default ignores columns with all missing values
+# The algorithm also computes the table of descriptives statistics
+# The algorithm was developed for nonparametric ANOVA for
+#   elemental analysis of samples
 #
 # Copyright: Ilia Fastovets (2017)
 # Contact: fastovetsilya@yandex.ru
