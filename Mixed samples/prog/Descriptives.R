@@ -1,0 +1,8 @@
+Data<-read_excel('Data.xlsx')
+boxplot(Fe2O3~G,data=Data)
+bartlett.test(Fe2O3~G, data=Data)
+fligner.test(Fe2O3~G, data=Data)
+mad(na.omit(Data$Fe2O3[Data$G=='14']))
+mad(na.omit(Data$Fe2O3[Data$G=='30']))
+mad(na.omit(Data$Fe2O3[Data$G=='36']))
+gao_cs(Fe2O3~G, data=Data)
