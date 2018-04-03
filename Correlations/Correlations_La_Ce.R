@@ -1,3 +1,20 @@
+# This program performs correlation analysis of specified features.
+# It was developed for performing correlation analysis for Mitotic
+#   index (MI) and frequency of abberant cells (FAC) of onion root
+#   tip cells (Allium-test) and length of onion roots. 
+# For nonlinear relationships, this algorithm computes permutation
+#   test for Spearman rank-based correlations.
+# The input is a file with columns named with structure 
+#   [Element]_[Medium]_[Feature] as in the example. 
+# The output is data table with adjusted p-values (BHY adjustment)
+#   and the plots of correlations with numerical summaries and
+#   LOWESS smoothing curve for assessing linearity of the 
+#   relationship.
+#
+# Copyright: Ilia Fastovets (2018)
+# Contact: fastovetsilya@yandex.ru
+
+
 library('readxl')
 library('sm')
 
