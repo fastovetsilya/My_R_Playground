@@ -13,12 +13,12 @@ library('ggplot2')
 library('extrafont')
 library('boot')
 
-Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
+Data <- read_excel('Data.xlsx')
 Datamat <- as.matrix(Data)
 
-Element <- 'La'
-Medium <- 'rastv'
-Feature <- 'MI'
+Element <- 'Ce'
+Medium <- 'pochv'
+Feature <- 'FAC'
 
 Index_Group <- paste(Element, Medium, sep = '_')
 Index_Feature <- paste(Element, Medium, Feature, sep = '_')
@@ -91,22 +91,33 @@ create_summary <- function(D_r, method = 't') # 't' or 'boot'
 
 D_agg <- create_summary(D_r, 't')
 
+
+#loadfonts(device = "win")
+#font_install('TT Arial')
 good_plot <- function(D_agg, title, xlab, ylab)
 {
-  ggplot(D_agg, aes(x=Group, y=Mean)) +
+  ggplot(D_agg, aes(x=Group, y=Mean, vjust = 1.5)) +
     geom_line(aes(group=1)) +
     geom_point(size=2) +
     geom_errorbar(aes(ymin=Low, ymax=High), 
                   width=2) +
-    xlab(xlab) + 
-    ylab(ylab) +
+    xlab(paste0(xlab)) + 
+    ylab(paste0(ylab)) +
     ggtitle(title) +
     scale_x_discrete(limits = D_agg$Group, expand = c(0.05,0.05)) +
     theme(plot.title = element_text(hjust = 0.5), 
-          axis.text = element_text(face='plain',size=14, colour='black'),
-          text = element_text(face="bold",size=14, colour='black'))
+          axis.text = element_text(face='plain',size=24, colour='black'),
+          text = element_text(face="bold",size=24, colour='black'),
+          axis.title.x = element_text(margin = margin(t = 20)),
+          axis.title.y = element_text(margin = margin(r = 20))) +
+    ylim(0,max(D_agg$High)+2)
+         
 }
 
-good_plot(D_agg, 'This is title', 'La conc', 'MI')
+# good_plot(D_agg, '', 
+#           paste0(Element,' concentration', ', mg/l'), 
+#           paste0(Feature, ', %'))
 
-
+good_plot(D_agg, '',
+          paste0(Element,' extraneous concentration', ', mg/l'),
+          paste0(Feature, ', %'))
