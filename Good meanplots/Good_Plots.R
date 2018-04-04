@@ -4,7 +4,7 @@
 # The algorithm was developed for cell analysis mean plots
 #   of mitotic index (MI) and frequency of abberant cells (FAC).
 #
-# Copyright: Ilia Fastovets (2017)
+# Copyright: Ilia Fastovets (2018)
 # Contact: fastovetsilya@yandex.ru
 
 
@@ -13,7 +13,7 @@ library('ggplot2')
 library('extrafont')
 library('boot')
 
-Data <- read_excel('Data.xlsx')
+Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
 Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
@@ -110,7 +110,7 @@ good_plot <- function(D_agg, title, xlab, ylab)
           text = element_text(face="bold",size=24, colour='black'),
           axis.title.x = element_text(margin = margin(t = 20)),
           axis.title.y = element_text(margin = margin(r = 20))) +
-    ylim(0,max(D_agg$High)+2)
+    ylim(0,max(D_agg$High)+1)
          
 }
 
@@ -119,5 +119,5 @@ good_plot <- function(D_agg, title, xlab, ylab)
 #           paste0(Feature, ', %'))
 
 good_plot(D_agg, '',
-          paste0(Element,' extraneous concentration', ', mg/l'),
+          paste0(Element,' extraneous concentration', ', mg/kg'),
           paste0(Feature, ', %'))
