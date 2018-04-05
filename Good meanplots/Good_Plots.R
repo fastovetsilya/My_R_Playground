@@ -10,7 +10,7 @@
 
 library('readxl')
 library('ggplot2')
-library('extrafont')
+#library('extrafont')
 library('boot')
 
 Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
@@ -18,7 +18,7 @@ Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
 Medium <- 'pochv'
-Feature <- 'FAC'
+Feature <- 'RootLength'
 
 Index_Group <- paste(Element, Medium, sep = '_')
 Index_Feature <- paste(Element, Medium, Feature, sep = '_')
@@ -118,6 +118,14 @@ good_plot <- function(D_agg, title, xlab, ylab)
 #           paste0(Element,' concentration', ', mg/l'), 
 #           paste0(Feature, ', %'))
 
+# good_plot(D_agg, '',
+#           paste0(Element,' extraneous concentration', ', mg/kg'),
+#           paste0(Feature, ', %'))
+
+# good_plot(D_agg, '',
+#           paste0(Element,' concentration', ', mg/l'),
+#           'Root length, mm')
+
 good_plot(D_agg, '',
           paste0(Element,' extraneous concentration', ', mg/kg'),
-          paste0(Feature, ', %'))
+          'Root length, mm')
