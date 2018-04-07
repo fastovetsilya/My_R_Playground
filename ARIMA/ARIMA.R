@@ -11,7 +11,7 @@ fit_arima <- auto.arima(Data, d = NA, D = NA, max.p = 15, max.q = 15, max.P = 15
                         truncate = NULL, xreg = NULL, test = 'kpss',
                         seasonal.test = "ocsb", allowdrift = TRUE, allowmean = TRUE,
                         lambda = NULL, biasadj = FALSE, parallel = TRUE, num.cores = 2)
-plot(forecast(fit_arima, h = 100), xlim = c(350, nrow(Data)+20), 
-     ylim = c(200,260))
+plot(forecast(fit_arima, h = 100), xlim = c(150, nrow(Data)+20), 
+     ylim = c(200,250))
 fit_nnetar <- nnetar(Data[,1], size=20, repeats = 20)
-#plot(forecast(fit_nnetar, h = 100))
+plot(forecast(fit_nnetar, h = 100))
