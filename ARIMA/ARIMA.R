@@ -10,8 +10,8 @@
 #  1) simple and 2) it calculates confidence bounds of the prediction to
 #  assess the risk of investments. 
 
-
 library('forecast')
+
 Data <- read.csv('LSTM_Predicted.csv', header = FALSE)
 D_r <- as.data.frame(Data[1:(nrow(Data)-15),])
 Nsteps <- 15
@@ -30,16 +30,11 @@ fit_arima <- auto.arima(Data, d = NA, D = D, max.p = Max_params, max.q = Max_par
                         max.d = Max_params, max.D = Max_params, 
                         start.p = 1,
                         start.q = 1, start.P = 1, start.Q = 1, stationary = FALSE,
-<<<<<<< HEAD
                         seasonal = TRUE, ic = Crit, stepwise = FALSE,
-=======
-                        seasonal = FALSE, ic = 'aic', stepwise = FALSE,
->>>>>>> 72f2edbf36e4135ff9678a48629b58b07d4e1108
                         trace = TRUE, approximation = FALSE,
                         truncate = NULL, xreg = NULL, test = 'kpss',
                         seasonal.test = "ocsb", allowdrift = TRUE, allowmean = TRUE,
                         lambda = NULL, biasadj = FALSE, parallel = TRUE, num.cores = 2)
-<<<<<<< HEAD
 return(fit_arima)
 }
 arima_test <- Custom_arima(D_r, Max_params, D)
@@ -69,13 +64,4 @@ print(paste0('Risk of Crit_point_1 is: ', Crit_1_risk, ' %'))
 print(paste0('Risk of Crit_point_2 is: ', Crit_2_risk, ' %'))
 
 
-
-#fit_nnetar <- nnetar(D_r)
-#plot(forecast(fit_nnetar, h = 100))
-=======
-plot(forecast(fit_arima, h = 100), xlim = c(210, nrow(Data)+20), 
-     ylim = c(200, 260))
-fit_nnetar <- nnetar(Data[,1], size=20, repeats = 20)
-plot(forecast(fit_nnetar, h = 30))
   
->>>>>>> 72f2edbf36e4135ff9678a48629b58b07d4e1108
