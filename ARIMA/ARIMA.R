@@ -15,11 +15,13 @@ library('forecast')
 Data <- read.csv('LSTM_Predicted.csv', header = FALSE)
 D_r <- as.data.frame(Data[1:(nrow(Data)-15),])
 Nsteps <- 15
-Max_params <- 5
+Max_params <- 10
 D <- NA # 1 or NA
-Crit <- 'aic' # 'aic', 'bic', or 'aicc'
-Crit_point_1 <- 214
-Crit_point_2 <- 211
+Crit <- 'bic' # 'aic', 'bic', or 'aicc'
+root_test <- 'kpss' # 'kpss, 'adf', or 'pp'
+seas_test <- 'ocsb' # 'ocsb', or 'ch'
+Crit_point_1 <- 36
+Crit_point_2 <- 35
 
 ptm <- proc.time()
 
@@ -32,8 +34,8 @@ fit_arima <- auto.arima(Data, d = NA, D = D, max.p = Max_params, max.q = Max_par
                         start.q = 1, start.P = 1, start.Q = 1, stationary = FALSE,
                         seasonal = TRUE, ic = Crit, stepwise = FALSE,
                         trace = TRUE, approximation = FALSE,
-                        truncate = NULL, xreg = NULL, test = 'kpss',
-                        seasonal.test = "ocsb", allowdrift = TRUE, allowmean = TRUE,
+                        truncate = NULL, xreg = NULL, test = root_test,
+                        seasonal.test = seas_test, allowdrift = TRUE, allowmean = TRUE,
                         lambda = NULL, biasadj = FALSE, parallel = TRUE, num.cores = 2)
 return(fit_arima)
 }
