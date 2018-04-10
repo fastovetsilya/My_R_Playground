@@ -9,6 +9,8 @@
 #  on the final prediction. The advantage of using ARIMA here is that it
 #  1) simple and 2) it calculates confidence bounds of the prediction to
 #  assess the risk of investments. 
+# The algorithm also computes neural network prediction pased on the optimal parameters 
+#  from ARIMA
 
 library('forecast')
 
@@ -17,11 +19,11 @@ D_r <- as.data.frame(Data[1:(nrow(Data)-15),])
 Nsteps <- 15
 Max_params <- 10
 D <- NA # 1 or NA
-Crit <- 'bic' # 'aic', 'bic', or 'aicc'
+Crit <- 'aicc' # 'aic', 'bic', or 'aicc'
 root_test <- 'kpss' # 'kpss, 'adf', or 'pp'
 seas_test <- 'ocsb' # 'ocsb', or 'ch'
-Crit_point_1 <- 36
-Crit_point_2 <- 35
+Crit_point_1 <- 218.39
+Crit_point_2 <- 31.25
 
 ptm <- proc.time()
 
@@ -42,8 +44,21 @@ return(fit_arima)
 arima_test <- Custom_arima(D_r, Max_params, D)
 arima_predict <- Custom_arima(Data, Max_params, D)
 
+nnetar_test <- nnetar(D_r[,1], p = arima_test$arma[1], P = arima_test$arma[4], 
+                      size = 10)
+nnetar_predict <- nnetar(Data[,1], p = arima_predict$arma[1], P = arima_predict$arma[4], 
+                         size = 10)
+
 forecast_arimatest <- forecast(arima_test, h = Nsteps)
 forecast_arimapredict <- forecast(arima_predict, h = Nsteps)
+forecast_nnetartest <- forecast(nnetar_test, h = Nsteps)
+forecast_nnetarpredict <- forecast(nnetar_predict, h =Nsteps)
+
+plot(forecast_nnetartest, 
+     xlim = c(100, nrow(Data)+Nsteps)) 
+lines(Data)
+plot(forecast_nnetarpredict, 
+     xlim = c(100, nrow(Data)+Nsteps)) 
 
 plot(forecast_arimatest, 
      xlim = c(100, nrow(Data)+Nsteps)) 
