@@ -18,7 +18,7 @@ Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
 Medium <- 'pochv'
-Feature <- 'RootLength'
+Feature <- 'FAC'
 
 Index_Group <- paste(Element, Medium, sep = '_')
 Index_Feature <- paste(Element, Medium, Feature, sep = '_')
@@ -107,25 +107,24 @@ good_plot <- function(D_agg, title, xlab, ylab)
     scale_x_discrete(limits = D_agg$Group, expand = c(0.05,0.05)) +
     theme(plot.title = element_text(hjust = 0.5), 
           axis.text = element_text(face='plain',size=24, colour='black'),
-          text = element_text(face="bold",size=24, colour='black'),
+          text = element_text(face="bold",size=36, colour='black'),
           axis.title.x = element_text(margin = margin(t = 20)),
           axis.title.y = element_text(margin = margin(r = 20))) +
     ylim(0,max(D_agg$High)+1)
-         
 }
 
-# good_plot(D_agg, '', 
-#           paste0(Element,' concentration', ', mg/l'), 
+# good_plot(D_agg, '',
+#           paste0(Element,' concentration', ', mg/l'),
 #           paste0(Feature, ', %'))
 
-# good_plot(D_agg, '',
-#           paste0(Element,' extraneous concentration', ', mg/kg'),
-#           paste0(Feature, ', %'))
+good_plot(D_agg, '',
+          paste0(Element,' extraneous concentration', ', mg/kg'),
+          paste0(Feature, ', %'))
 
 # good_plot(D_agg, '',
 #           paste0(Element,' concentration', ', mg/l'),
 #           'Root length, mm')
 
-good_plot(D_agg, '',
-          paste0(Element,' extraneous concentration', ', mg/kg'),
-          'Root length, mm')
+# good_plot(D_agg, '',
+#           paste0(Element,' extraneous concentration', ', mg/kg'),
+#           'Root length, mm')

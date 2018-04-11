@@ -23,7 +23,7 @@ Crit <- 'aicc' # 'aic', 'bic', or 'aicc'
 root_test <- 'kpss' # 'kpss, 'adf', or 'pp'
 seas_test <- 'ocsb' # 'ocsb', or 'ch'
 Crit_point_1 <- 218.39
-Crit_point_2 <- 31.25
+Crit_point_2 <- 37.7
 
 ptm <- proc.time()
 
