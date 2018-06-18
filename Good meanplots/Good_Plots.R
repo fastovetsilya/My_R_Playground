@@ -16,8 +16,8 @@ library('boot')
 Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
 Datamat <- as.matrix(Data)
 
-Element <- 'Ce'
-Medium <- 'pochv'
+Element <- 'Nd'
+Medium <- 'rastv'
 Feature <- 'FAC'
 
 Index_Group <- paste(Element, Medium, sep = '_')
