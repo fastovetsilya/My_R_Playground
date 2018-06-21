@@ -16,9 +16,9 @@ library('boot')
 Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
 Datamat <- as.matrix(Data)
 
-Element <- 'Nd'
+Element <- 'Ce'
 Medium <- 'rastv'
-Feature <- 'FAC'
+Feature <- 'MI'
 
 Index_Group <- paste(Element, Medium, sep = '_')
 Index_Feature <- paste(Element, Medium, Feature, sep = '_')
@@ -96,11 +96,12 @@ D_agg <- create_summary(D_r, 't')
 #font_install('TT Arial')
 good_plot <- function(D_agg, title, xlab, ylab)
 {
+  errorbar_width = (max(D_agg[1]) - min(D_agg[1])) / 100
   ggplot(D_agg, aes(x=Group, y=Mean, vjust = 1.5)) +
     geom_line(aes(group=1)) +
     geom_point(size=2) +
     geom_errorbar(aes(ymin=Low, ymax=High), 
-                  width=2) +
+                  width=errorbar_width) +
     xlab(paste0(xlab)) + 
     ylab(paste0(ylab)) +
     ggtitle(title) +
@@ -113,13 +114,13 @@ good_plot <- function(D_agg, title, xlab, ylab)
     ylim(0,max(D_agg$High)+1)
 }
 
-# good_plot(D_agg, '',
-#           paste0(Element,' concentration', ', mg/l'),
-#           paste0(Feature, ', %'))
-
 good_plot(D_agg, '',
-          paste0(Element,' extraneous concentration', ', mg/kg'),
+          paste0(Element,' concentration', ', mg/l'),
           paste0(Feature, ', %'))
+
+#good_plot(D_agg, '',
+          #paste0(Element,' extraneous concentration', ', mg/kg'),
+          #paste0(Feature, ', %'))
 
 # good_plot(D_agg, '',
 #           paste0(Element,' concentration', ', mg/l'),
