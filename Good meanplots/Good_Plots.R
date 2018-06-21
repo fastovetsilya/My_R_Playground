@@ -18,7 +18,7 @@ Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
 Medium <- 'rastv'
-Feature <- 'MI'
+Feature <- 'FAC'
 
 Index_Group <- paste(Element, Medium, sep = '_')
 Index_Feature <- paste(Element, Medium, Feature, sep = '_')
