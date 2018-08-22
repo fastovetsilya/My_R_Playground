@@ -5,7 +5,7 @@ library('ggplot2')
 
 # Initialize 
 init_dir <- getwd()
-Data <- read_excel('Data.xlsx')
+Data <- read_excel('Data2.xlsx')
 N_sim <- 10^6
 confidence_intervals <- 't' # t or boot
 

@@ -17,7 +17,7 @@ Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
 Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
-Medium <- 'rastv'
+Medium <- 'pochv'
 Feature <- 'FAC'
 
 Index_Group <- paste(Element, Medium, sep = '_')
@@ -114,13 +114,13 @@ good_plot <- function(D_agg, title, xlab, ylab)
     ylim(0,max(D_agg$High)+1)
 }
 
-good_plot(D_agg, '',
-          paste0(Element,' concentration', ', mg/l'),
-          paste0(Feature, ', %'))
+# good_plot(D_agg, '',
+#           paste0(Element,' concentration', ', mg/l'),
+#           paste0(Feature, ', %'))
 
-#good_plot(D_agg, '',
-          #paste0(Element,' extraneous concentration', ', mg/kg'),
-          #paste0(Feature, ', %'))
+good_plot(D_agg, '',
+paste0(Element,' extraneous concentration', ', mg/kg'),
+paste0(Feature, ', %'))
 
 # good_plot(D_agg, '',
 #           paste0(Element,' concentration', ', mg/l'),
