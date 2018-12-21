@@ -13,7 +13,7 @@ library('ggplot2')
 #library('extrafont')
 library('boot')
 
-Data <- read_excel('Correlations_La_Ce_rastv_pochv.xlsx')
+Data <- read_excel('Data2.xlsx')
 Datamat <- as.matrix(Data)
 
 Element <- 'Ce'
