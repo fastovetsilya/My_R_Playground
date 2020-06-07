@@ -1,9 +1,11 @@
+# Load library
 library('readxl')
+
 ### BEGIN INPUT
 r.crit <- 0.3 # Set critical r
 r.method <- 'pearson' # Method of correlation. "pearson", "kendall", "spearman"
 compute_ranks <- 'simple' # Rank matrices to be computed. 'simple' or 'weighted'
-#9setwd("~/Dropbox/Общая/Наука/Институт/Формулы сбалансированности") # Set working directory 
+#setwd("~/Dropbox/Общая/Наука/Институт/Формулы сбалансированности") # Set working directory 
 Data <- read_excel('SampleData.xlsx', sheet = 1) # Data file to read
 dep_var <- 'us' # Dependent variable to correlate with
 cmb_data <- Data[4:11] # Set independent variables

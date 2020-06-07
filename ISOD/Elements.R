@@ -1,11 +1,11 @@
-# Отношения переменных в различных комбинациях
+# Different combinations of nutrient elements 
 x <- matrix(1:24, ncol=6)
 cmb <- combn(ncol(x), 2)
 r1 <- apply(cmb, 2, function(j) x[, j[1]]/x[, j[2]])
 r2 <- apply(cmb, 2, function(j) x[, j[2]]/x[, j[1]])
 cbind(r1, r2)
 
-#Еще вариант
+# Another way
 pairwise.ratios <- function(x, prefix="probeset", char=":"){
   n <- ncol(x)
   cn <- colnames(x)
