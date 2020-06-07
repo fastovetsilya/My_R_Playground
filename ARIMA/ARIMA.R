@@ -1,5 +1,3 @@
-# //This tool is currently under development//
-
 # This algorithm uses ARIMA to predict time series data. The hyperparameters 
 #  of ARIMA are computed by exhaustive search and thus take some time. 
 # The algorithm may be employed to predict stock market data (prices etc.).
@@ -9,7 +7,7 @@
 #  on the final prediction. The advantage of using ARIMA here is that it
 #  1) simple and 2) it calculates confidence bounds of the prediction to
 #  assess the risk of investments. 
-# The algorithm also computes neural network prediction pased on the optimal parameters 
+# The algorithm also computes neural network prediction based on the optimal parameters 
 #  from ARIMA
 
 library('forecast')
@@ -55,13 +53,13 @@ forecast_nnetartest <- forecast(nnetar_test, h = Nsteps)
 forecast_nnetarpredict <- forecast(nnetar_predict, h =Nsteps)
 
 plot(forecast_nnetartest, 
-     xlim = c(100, nrow(Data)+Nsteps)) 
+     xlim = c(100, nrow(Data) + Nsteps)) 
 lines(Data)
 plot(forecast_nnetarpredict, 
-     xlim = c(100, nrow(Data)+Nsteps)) 
+     xlim = c(100, nrow(Data) + Nsteps)) 
 
 plot(forecast_arimatest, 
-     xlim = c(100, nrow(Data)+Nsteps)) 
+     xlim = c(100, nrow(Data) + Nsteps)) 
 lines(Data)
 plot(forecast_arimapredict, 
      xlim = c(100, nrow(Data)+Nsteps)) 
@@ -72,13 +70,10 @@ Lower <- as.numeric(forecast_arimapredict$lower[,2])
 Upper <- as.numeric(forecast_arimapredict$upper[,2])
 
 Crit_1_risk <- signif((sum(Crit_point_1 - Lower[Lower < Crit_point_1])/
-               sum(Upper-Lower)) * 100, 4)
+               sum(Upper - Lower)) * 100, 4)
 Crit_2_risk <- signif((sum(Crit_point_2 - Lower[Lower < Crit_point_2])/
                 sum(Upper-Lower)) * 100, 4)
 
 print(proc.time() - ptm)
 print(paste0('Risk of Crit_point_1 is: ', Crit_1_risk, ' %'))
 print(paste0('Risk of Crit_point_2 is: ', Crit_2_risk, ' %'))
-
-
-  
