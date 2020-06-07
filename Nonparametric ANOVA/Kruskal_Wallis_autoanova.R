@@ -1,16 +1,15 @@
-# This algorithm computes KW tests and creates pictures of them
-# The input is Excel file with columns as variables in mainwd dir
-# The grouping variable must be named 'Group' 
-# The mainwd dir may be changed
-# The algorithm by default ignores columns with all missing values
-# The algorithm also computes the table of descriptives statistics
-# The algorithm was developed for nonparametric ANOVA for
-#   elemental analysis of samples
-#
+# The algorithm was originally developed for nonparametric ANOVA for elemental analysis of samples for soil science applications.
+# This algorithm computes KW tests and creates pictures of them.
+# The input is an Excel file with columns as variables in mainwd dir.
+# The grouping variable must be named 'Group'.
+# The mainwd dir may be changed.
+# The algorithm by default ignores columns with all missing values.
+# The algorithm also computes the table of descriptives statistics.
+
 # Copyright: Ilia Fastovets (2017)
-# Contact: fastovetsilya@yandex.ru
+# Contact: ilya.fastovets@gmail.com
 
-
+# Load the libraries
 library('readxl')
 library('coin')
 
@@ -63,7 +62,6 @@ for (i in clist){
 }
 
 # Create table for printing
-
 PrintTable <- function(main_data){
 output <- main_data
 output.mean <- as.data.frame(matrix(0,length(output[['Group']])))
@@ -90,7 +88,6 @@ return(output)
 output <- PrintTable(main_data)
 
 # Fill this table with means and confidence intervals
-
 for (i in clist){  
   for (k in fact_levels){
     output.index <- max(which(main_data['Group'] == k))
@@ -154,9 +151,3 @@ for (i in clist){
   }
   dev.off()
 }
-
-
-
-
-
-
