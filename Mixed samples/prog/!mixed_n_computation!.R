@@ -45,10 +45,10 @@ if (quantile(dx,alpha/2)<=0)
 {
   print('!!!Warning!!! There are >500 samples required!!! Please loosen the requirements and repeat calculations!')
 }
-print(c('Sidak-adjusted alpha is:',alpha)) #Sidak-adjusted alpha
-print(c('Alpha-quantile is:',quantile(dx,alpha/2)))
-print(c('Estimated sigma is:',sigma)) #estimated sigma
-print(c('Estimated number of samples is:',i)) #estimated number of samples (two-sided test)
+print(c('Sidak-adjusted alpha is:', alpha)) #Sidak-adjusted alpha
+print(c('Alpha-quantile is:', quantile(dx,alpha/2)))
+print(c('Estimated sigma is:', sigma)) #estimated sigma
+print(c('Estimated number of samples is:', i)) #estimated number of samples (two-sided test)
 
   
   

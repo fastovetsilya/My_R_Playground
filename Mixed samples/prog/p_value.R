@@ -36,6 +36,7 @@ if (mean2<as.numeric(Prec.Data[1,element]) | mean2>as.numeric(Prec.Data[2,elemen
   print('!!!Mean 2 is out of precision range!!!')
 }
 }
+
 # Estimating sigma
 difference<-mean2-mean1
 n<-length(a)
@@ -61,6 +62,7 @@ if (n>=8)
   upper.conf<-boot.ci(bootresult, conf = 1-alpha,type='bca')$bca[5]
 }
 sigma<-upper.conf
+
 # Simulation
 x1<-numeric()
 x2<-numeric()
@@ -85,6 +87,7 @@ print('Simple method is used')
  dx[i]<-mean(x2)-mean(x1)
  }
 }
+
 # Graph and inference
 hist(dx)
 abline(v=0,col='red')
