@@ -1,3 +1,5 @@
+library(rethinking)
+
 ### Grid approximation: 2.3-2.5
 
 # Define grid
@@ -25,7 +27,6 @@ plot(p_grid, posterior, type="b",
 
 
 ### Quadratic approximation: 2.6
-library(rethinking)
 
 # Compute quadratic approximation
 globe.qa <- quap(

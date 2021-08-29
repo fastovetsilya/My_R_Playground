@@ -1,3 +1,5 @@
+library(rethinking)
+
 ### Inverting the probability: 3.1
 
 Pr_Positive_Vampire <- 0.95
@@ -21,7 +23,6 @@ posterior <- posterior / sum(posterior)
 samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
 
 # Plot the drawn samples
-library(rethinking)
 plot(samples)
 dens(samples)
 
