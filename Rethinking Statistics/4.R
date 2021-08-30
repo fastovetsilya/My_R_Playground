@@ -161,13 +161,200 @@ precis(post)
 post <- mvrnorm(n = 1e4, mu = coef(m4.1), Sigma = vcov(m4.1))
 
 
-### Building linear model
+### Building linear model 4.37-4.63
 
 # Plot adult height and weight against one another
 data(Howell1)
 d <- Howell1
 d2 <- d[d$age >= 18, ]
 plot(d2$height, d2$weight)
+
+# Simulate heights from the model using only the priors
+set.seed(2971)
+N <- 100
+a <- rnorm(N, 178, 20)
+b <- rnorm(N, 0, 10)
+
+plot(NULL, xlim = range(d2$weight), ylim = c(-100, 400), 
+     xlab = "weight", ylab = "height")
+abline(h = 0, lty = 2)
+abline(h = 272, lty = 1, lwd = 0.5)
+mtext("b ~ dnorm(0, 10)")
+xbar <- mean(d2$weight)
+for(i in 1:N) curve(a[i] + b[i] * (x - xbar), 
+   from = min(d2$weight), to = max(d2$weight),  
+   add = TRUE, col = col.alpha("black", 0.2))
+
+# Take a look at log-normal distribution
+b <- rlnorm(1e4, 0, 1)
+dens(b, xlim = c(0, 5), adj = 0.1)
+
+# Repeat the simulation with log-normal distribution
+set.seed(2971)
+N <- 100
+a <- rnorm(N, 178, 20)
+b <- rlnorm(N, 0, 1)
+
+plot(NULL, xlim = range(d2$weight), ylim = c(-100, 400), 
+     xlab = "weight", ylab = "height")
+abline(h = 0, lty = 2)
+abline(h = 272, lty = 1, lwd = 0.5)
+mtext("b ~ dnorm(0, 10)")
+xbar <- mean(d2$weight)
+for(i in 1:N) curve(a[i] + b[i] * (x - xbar), 
+                    from = min(d2$weight), to = max(d2$weight),  
+                    add = TRUE, col = col.alpha("black", 0.2))
+
+# Find the posterior
+# Define the average weight
+xbar <- mean(d2$weight)
+# Fit the model 
+m4.3 <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a + b * (weight - xbar), 
+    a ~ dnorm(178, 20), 
+    b ~ dlnorm(0, 1), 
+    sigma ~ dunif(0, 50)
+  ), data = d2)
+# Fit another model 
+m4.3b <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a + exp(log_b) * (weight - xbar), 
+    a ~ dnorm(178, 20), 
+    log_b ~ dnorm(0, 1), 
+    sigma ~ dunif(0, 50)
+  ), data = d2)
+# Summarize posterior (tables of marginal distributions)
+precis(m4.3)
+round(vcov(m4.3), 3)
+
+# Plot posterior inference against the data
+plot(height ~ weight, data = d2, col = rangi2)
+post <- extract.samples(m4.3)
+a_map <- mean(post$a)
+b_map <- mean(post$b)
+curve(a_map + b_map * (x - xbar), add = TRUE)
+
+# Adding uncertainty around the mean
+post <- extract.samples(m4.3)
+post[1:5, ]
+# Re-estimate the model
+N <- 10
+dN <- d2[1:N, ]
+mN <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a + b * (weight - mean(weight)), 
+    a ~ dnorm(178, 20), 
+    b ~ dlnorm(0, 1), 
+    sigma ~ dunif(0, 50)
+  ), data = dN)
+# Plot 20 of these lines 
+# Extract samples from the posterior
+post <- extract.samples(mN, n = 20)
+# Display raw data and sample size
+plot(dN$weight, dN$height, 
+     xlim = range(d2$weight), ylim = range(d2$height), 
+     col = rangi2, xlab = "weight", ylab = "height")
+mtext(concat("N = ", N))
+# Plot the lines, with transparency
+for(i in 1:20)
+  curve(post$a[i] + post$b[i] * (x - mean(dN$weight)), 
+    col = col.alpha("black", 0.3), add = TRUE)
+
+# Compute and plot the density of the vector of predicted means
+post <- extract.samples(m4.3)
+mu_at_50 <- post$a + post$b * (50 - xbar)
+dens(mu_at_50, col = rangi2, lwd = 2,  xlab = "mu|weight=50")
+PI(mu_at_50, prob = 0.89)
+
+# Repeat the above calculation using link function
+mu <- link(m4.3)
+str(mu)
+
+# Compute a distribution of mu for each weight value
+# Define sequence of weights to compute predictions for 
+# These values will be on the horizontal axis
+weight.seq <- seq(from = 25, to = 70, by = 1)
+# Use link to compute mu 
+# for each sample from posterior
+# and for each weight in weight.seq
+mu <- link(m4.3, data = data.frame(weight = weight.seq))
+str(mu)
+
+# Plot a distribution for each height
+# Use type = "n" to hide raw data
+plot(height ~ weight, d2, type = "n")
+# Loop over samples and plot each mu value
+for(i in 1:100)
+  points(weight.seq, mu[i, ], pch = 16, col = col.alpha(rangi2, 0.1))
+
+# Summarize the distribution of mu
+mu.mean <- apply(mu, 2, mean)
+mu.PI <- apply(mu, 2, PI, prob = 0.89)
+
+# Plot the summary tables
+# Plot the raw data
+# Fading out points to make line and interval more visible 
+plot(height ~ weight, data = d2, col = col.alpha(rangi2, 0.5))
+# Plot the MAP line, aka mean mu for each weight
+lines(weight.seq, mu.mean)
+# Plot a shaded region for 89% PI
+shade(mu.PI, weight.seq)
+
+# How link works
+# Repeat the same without the link function
+post <- extract.samples(m4.3)
+mu.link <- function(weight) post$a + post$b * (weight - xbar)
+weight.seq <- seq(from = 25, to = 70, by = 1)
+mu <- sapply(weight.seq, mu.link)
+mu.mean <- apply(mu, 2, mean)
+mu.CI <- apply(mu, 2, PI, prob = 0.89)
+
+# Simulate prediction intervals
+sim.height <- sim(m4.3, data = list(weight = weight.seq))
+str(sim.height)
+# Summarize it
+height.PI <- apply(sim.height, 2, PI, prob = 0.89)
+# Create a summary plot
+# Plot raw data
+plot(height ~ weight, d2, col = col.alpha(rangi2, 0.5))
+# Draw MAP line
+lines(weight.seq, mu.mean)
+# Draw HPDI version for line
+shade(mu.CI, weight.seq)
+# Draw PI region for simulated weights
+shade(height.PI, weight.seq)
+
+# Increase the number of samples to get rid of rough intervals
+sim.height <- sim(m4.3, data = list(weight = weight.seq), n = 1e4)
+height.PI <- apply(sim.height, 2, PI, prob = 0.89)
+
+# How sim works
+post <- extract.samples(m4.3)
+weight.seq <- 25:70
+sim.height <- sapply(weight.seq, function(weight)
+  rnorm(
+    n = nrow(post), 
+    mean = post$a + post$b * (weight - xbar), 
+    sd = post$sigma))
+height.PI <- apply(sim.height, 2, PI, prob = 0.89)
+
+### Curves from lines: 4.64-
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
