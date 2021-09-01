@@ -1,5 +1,6 @@
 library(rethinking)
 library(MASS)
+library(splines)
 
 ### Normal by addition: 4.1
 
@@ -342,46 +343,133 @@ sim.height <- sapply(weight.seq, function(weight)
     sd = post$sigma))
 height.PI <- apply(sim.height, 2, PI, prob = 0.89)
 
-### Curves from lines: 4.64-
+
+### Curves from lines: 4.64-4.71
+
+# Load and plot full dataset
+data(Howell1)
+d <- Howell1
+plot(height ~ weight, d)
+
+# Standardize the predictors x
+d$weight_s <- (d$weight - mean(d$weight)) / sd(d$weight)
+d$weight_s2 <- d$weight_s ^ 2
+
+# Approximate the posterior
+m4.5 <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a + b1 * weight_s + b2 * weight_s2, 
+    a ~ dnorm(178, 20), 
+    b1 ~ dlnorm(0, 1), 
+    b2 ~ dnorm(0, 1), 
+    sigma ~ dunif(0, 50)
+  ), data = d)
+precis(m4.5)
+
+# Compute mean relationship with intervals
+weight.seq <- seq(from = -2.2, to = 2, length.out = 30)
+pred_dat <- list(weight_s = weight.seq, weight_s2 = weight.seq ^ 2)
+mu <- link(m4.5, data = pred_dat)
+mu.mean <- apply(mu, 2, mean)
+mu.PI <- apply(mu, 2, PI, prob = 0.89)
+sim.height <- sim(m4.5, data = pred_dat)
+height.PI <- apply(sim.height, 2, PI, prob = 0.89)
+
+# Plot the mean and CI
+plot(height ~ weight_s, d, col = col.alpha(rangi2, 0.5))
+lines(weight.seq, mu.mean)
+shade(mu.PI, weight.seq)
+shade(height.PI, weight.seq)
+
+# Fit cubic regression model 
+d$weight_s3 <- d$weight_s ^ 3
+m4.6 <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a + b1 * weight_s + b2 * weight_s2 + b3 * weight_s3, 
+    a ~ dnorm(178, 20), 
+    b1 ~ dlnorm(0, 1), 
+    b2 ~ dnorm(0, 10), 
+    b3 ~ dnorm(0, 10), 
+    sigma ~ dunif(0, 50)
+  ), data = d)
+
+# Compute mean relationship with intervals
+weight.seq <- seq(from = -2.2, to = 2, length.out = 30)
+pred_dat <- list(weight_s = weight.seq, weight_s2 = weight.seq ^ 2, weight_s3 = weight.seq ^ 3)
+mu <- link(m4.6, data = pred_dat)
+mu.mean <- apply(mu, 2, mean)
+mu.PI <- apply(mu, 2, PI, prob = 0.89)
+sim.height <- sim(m4.6, data = pred_dat)
+height.PI <- apply(sim.height, 2, PI, prob = 0.89)
+
+# Plot the mean and CI
+plot(height ~ weight_s, d, col = col.alpha(rangi2, 0.5))
+lines(weight.seq, mu.mean)
+shade(mu.PI, weight.seq)
+shade(height.PI, weight.seq)
+
+# Converting back to natural scale 
+plot(height ~ weight_s, d, col = col.alpha(rangi2, 0.5), xaxt = "n")
+at <- c(-2, -1, 0, 1 ,2)
+labels <- at * sd(d$weight) + mean(d$weight)
+axis(side = 1, at = at, labels = round(labels, 1))
 
 
+### Splines: 4.72-4.79
 
+# Load thousand years of blossom dataset
+data(cherry_blossoms)
+d <- cherry_blossoms
+precis(d)
 
+# Fit a B-spline
+d2 <- d[complete.cases(d$doy), ]
+num_knots <- 15
+knot_list <- quantile(d2$year, probs = seq(0, 1, length.out = num_knots))
 
+# Cubic spline
+B <- bs(d2$year, 
+        knots = knot_list[-c(1, num_knots)], 
+        degree = 3, intercept = TRUE)
 
+# Plot basis functions
+plot(NULL, xlim = range(d2$year), ylim = c(0, 1), xlab = "year", ylab = "basis")
+for(i in 1:ncol(B)) lines(d2$year, B[, i])
 
+# Fit the spline model 
+m4.7 <- quap(
+  alist(
+    D ~ dnorm(mu, sigma), 
+    mu <- a + B %*% w, 
+    a ~ dnorm(100, 10),
+    w ~ dnorm(0, 10),
+    sigma ~ dexp(1)
+  ), data = list(D = d2$doy, B = B), 
+  start = list(w = rep(0, ncol(B))))
 
+# Weighted basis functions
+post <- extract.samples(m4.7)
+w <- apply(post$w, 2, mean)
+plot(NULL, xlim = range(d2$year), ylim = c(-6, 6), 
+     xlab = "year", ylab = "basis * weight")
+for(i in 1:ncol(B)) lines(d2$year, w[i] * B[, i])
 
+# Mu and posterior intervals for mu, at each year
+mu <- link(m4.7)
+mu_PI <- apply(mu, 2, PI, 0.97)
+plot(d2$year, d2$doy, col = col.alpha(rangi2, 0.3), pch = 16)
+shade(mu_PI, d2$year, col = col.alpha("black", 0.5))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Linear algebra for w * basis multiplication 
+m4.7alt <- quap(
+  alist(
+    D ~ dnorm(mu, sigma), 
+    mu <- a + sapply(1:827, function(i) sum(B[i, ] * w)), 
+    a ~ dnorm(100, 1), 
+    w ~ dnorm(0, 10), 
+    sigma ~ dexp(1)
+  ), 
+  data = list(D = d2$doy, B = B), 
+  start = list(w = rep(0, ncol(B))))
