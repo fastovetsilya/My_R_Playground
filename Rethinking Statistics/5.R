@@ -199,7 +199,7 @@ D_sim <- with(post, sapply(1:30,
                            function(i) rnorm(1e3, a + bA * A_seq[i] + bM * M_sim[, i], sigma)))
 
 
-### Masked relationships: 5.28 - 
+### Masked relationships: 5.28 - 5.44
 # Load milk data
 data(milk)
 d <- milk
@@ -254,43 +254,82 @@ m5.5 <- quap(
 # Look at the posterior
 precis(m5.5)
 
+# Display the posterior
+xseq <- seq(from = min(dcc$N) - 0.15, to = max(dcc$N) + 0.15, length.out = 30)
+mu <- link(m5.5, data = list(N = xseq))
+mu_mean <- apply(mu, 2, mean)
+mu_PI <- apply(mu, 2, PI)
+plot(K ~ N, data = dcc)
+lines(xseq, mu_mean, lwd = 2)
+shade(mu_PI, xseq)
 
+# Construct a model with bivariate relationship
+m5.6 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a + bM * M, 
+    a ~ dnorm(0, 0.2), 
+    bM ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = dcc)
 
+# Add both predictors 
+m5.7 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a + bN * N + bM * M, 
+    a ~ dnorm(0, 0.2), 
+    bN ~ dnorm(0, 0.5), 
+    bM ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = dcc)
+precis(m5.7)
+plot(coeftab(m5.5, m5.6, m5.7), pars = c("bM", "bN"))
 
+# Create a counterfactual plot
+xseq <- seq(from = min(dcc$M) - 0.15, to = max(dcc$M) + 0.15, length.out = 30)
+mu <- link(m5.7, data = data.frame(M = xseq, N = 0))
+mu_mean <- apply(mu, 2, mean)
+mu_PI <- apply(mu, 2, PI)
+plot(NULL, xlim = range(dcc$M), ylim = range(dcc$K))
+lines(xseq, mu_mean, lwd = 2)
+shade(mu_PI, xseq)
 
+# Simulating masking relationship
+# Simulate the data consistent with the first DAG
+# M -> K <- N
+# M -> N
+n = 100
+M <- rnorm(n)
+N <- rnorm(n, M)
+K <- rnorm(n, N - M)
+d_sim <- data.frame(K = K, N = N, M = M)
 
+# Simulate the other two DAGs
+# M -> K <- N
+# N -> M
+n <- 100 
+N <- rnorm(n)
+M <- rnorm(n, N)
+K <- rnorm(n, N - M)
+dsim2 <- data.frame(K = K, N = N, M = M)
 
+# M -> K <- N
+# M <- U -> N
+n <- 100
+U <- rnorm(n)
+N <- rnorm(n, U)
+M <- rnorm(n, U)
+K <- rnorm(n, N - M)
+d_sim3 <- data.frame(K = K, N = N, M = M)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Generate Markov equivalence set of DAGs
+dag5.7 <- dagitty("dag{
+  M -> K <- N
+  M -> N}")
+coordinates(dag5.7) <- list(x = c(M = 0, K = 1, N = 2), y = c(M = 0.5, K = 1, N = 0.5))
+MElist <- equivalentDAGs(dag5.7)
+drawdag(MElist)
 
 
 
