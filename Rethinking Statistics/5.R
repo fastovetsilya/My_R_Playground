@@ -199,6 +199,134 @@ D_sim <- with(post, sapply(1:30,
                            function(i) rnorm(1e3, a + bA * A_seq[i] + bM * M_sim[, i], sigma)))
 
 
+### Masked relationships: 5.28 - 
+# Load milk data
+data(milk)
+d <- milk
+str(d)
+
+# Standardize variables
+d$K <- standardize(d$kcal.per.g)
+d$N <- standardize(d$neocortex.perc)
+d$M <- standardize(log(d$mass))
+
+# Fit quap model 
+m5.5_draft <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a + bN * N, 
+    a ~ dnorm(0, 1), 
+    bN ~ dnorm(0, 1), 
+    sigma ~ dexp(1)
+  ), data = d)
+
+# Remove missing rows
+dcc <- d[complete.cases(d$K, d$N, d$M), ]
+
+# Fit quap model on the new dataframe
+m5.5_draft <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a + bN * N, 
+    a ~ dnorm(0, 1), 
+    bN ~ dnorm(0, 1), 
+    sigma ~ dexp(1)
+  ), data = dcc)
+
+# Simulate and plot 50 prior regression lines
+prior <- extract.prior(m5.5_draft)
+xseq <- c(-2, 2)
+mu <- link(m5.5_draft, post = prior, data = list(N = xseq))
+plot(NULL, xlim = xseq, ylim = xseq)
+for(i in 1:50) lines(xseq, mu[i, ], col = col.alpha("black", 0.3))
+
+# Build a new model with another prior
+m5.5 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a + bN * N, 
+    a ~ dnorm(0, 0.2), 
+    bN ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = dcc
+)
+
+# Look at the posterior
+precis(m5.5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
