@@ -332,116 +332,68 @@ MElist <- equivalentDAGs(dag5.7)
 drawdag(MElist)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### Categorical variables: 5.45 - 5.54
+# Load data
+data(Howell1)
+d <- Howell1
+str(d)
+
+# Prior distributions for males and females
+mu_female <- rnorm(1e4, 178, 20)
+mu_male <- rnorm(1e4, 178, 20) + rnorm(1e4, 0, 10)
+precis(data.frame(mu_female, mu_male))
+
+# Construct index for categories
+d$sex <- ifelse(d$male == 1, 2, 1)
+str(d$sex)
+
+# Approximate the posterior for the model with index variable
+m5.8 <- quap(
+  alist(
+    height ~ dnorm(mu, sigma), 
+    mu <- a[sex], 
+    a[sex] ~ dnorm(178, 20), 
+    sigma ~ dunif(0, 50)
+  ), data = d)
+precis(m5.8, depth = 2)
+
+# Compute contrasts
+post <- extract.samples(m5.8)
+post$diff_fm <- post$a[, 1] - post$a[, 2]
+precis(post, depth = 2)
+
+# Multiple categories
+data(milk)
+d <- milk
+levels(d$clade)
+
+# Coerce the factor to an integer
+d$clade_id <- as.integer(d$clade)
+
+# Run quap
+d$K <- standardize(d$kcal.per.g)
+m5.9 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a[clade_id], 
+    a[clade_id] ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = d)
+labels <- paste("a[", 1:4, "]:", levels(d$clade), sep = "")
+plot(precis(m5.9, depth = 2, pars = "a"), labels = labels, 
+     xlab = "expected kcal (std)")
+
+# Randomly assign primates to made up categories
+set.seed(63)
+d$house <- sample(rep(1:4, each = 8), size = nrow(d))
+
+# Include these categories as another predictor in the model
+m5.10 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma), 
+    mu <- a[clade_id] + h[house], 
+    a[clade_id] ~ dnorm(0, 0.5), 
+    h[house] ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = d)
+precis(m5.10, depth = 2)
