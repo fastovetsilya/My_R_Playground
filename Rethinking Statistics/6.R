@@ -121,7 +121,7 @@ stddev <- sapply(r.seq, function(z) rep.sim.coll(r = z, n = 100))
 plot(stddev ~ r.seq, type = "l", col = rangi2, lwd = 2, xlab = "correlation")
 
 
-### Post-treatment bias: 6.13 - 
+### Post-treatment bias: 6.13 - 6.20
 
 # Simulate some data with post-treatment variable
 set.seed(71)
@@ -185,239 +185,123 @@ coordinates(plant_dag) <- list(x = c(H_0 = 0, T = 2, F = 1.5, H_1 = 1),
                                y = c(H_0 = 0, T = 0, F = 0, H_1 = 0))
 drawdag(plant_dag)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+impliedConditionalIndependencies(plant_dag)
+
+#Include F in the model, then rerun the models above
+set.seed(71)
+N <- 1000
+h0 <- rnorm(N, 10, 2)
+treatment <- rep(0:1, each = N / 2)
+M <- rbern(N)
+fungus <- rbinom(N, size = 1, prob = 0.5 - treatment * 0.4 + 0.4 * M)
+h1 <- h0 + rnorm(N, 5 + 3 * M)
+d2 <- data.frame(h0 = h0, h1 = h1, treatment = treatment, fungus = fungus)
+
+m6.7.d2 <- quap(
+  alist(
+    h1 ~ dnorm(mu, sigma), 
+    mu <- h0 * p, 
+    p <- a + bt * treatment + bf * fungus, 
+    a ~ dlnorm(0, 0.2), 
+    bt ~ dnorm(0, 0.5), 
+    bf ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = d2)
+precis(m6.7.d2)
+
+m6.8.d2 <- quap(
+  alist(
+    h1 ~ dnorm(mu, sigma),  
+    mu <- h0 * p, 
+    p <- a + bt * treatment, 
+    a ~ dlnorm(0, 0.2), 
+    bt ~ dnorm(0, 0.5), 
+    sigma ~ dexp(1)
+  ), data = d2)
+precis(m6.8.d2)
+
+### Collider bias: 6.21 - 6.28
+
+d <- sim_happiness(seed = 1977, N_years = 1000)
+precis(d)
+# Rescale data
+d2 <- d[d$age>17, ] # Only adults
+d2$A <- (d2$age - 18) / (65 - 18)
+# Approximate the posterior
+d2$mid <- d2$married + 1
+m6.9 <- quap(
+  alist(
+    happiness ~ dnorm(mu, sigma), 
+    mu <- a[mid] + bA * A, 
+    a[mid] ~ dnorm(0, 1), 
+    bA ~ dnorm(0, 2), 
+    sigma ~ dexp(1)
+  ), data = d2
+)
+precis(m6.9, depth = 2)
+# Model that omits marriage status
+m6.10 <- quap(
+  alist(
+    happiness ~ dnorm(mu, sigma), 
+    mu <- a + bA * A, 
+    a ~ dnorm(0, 1), 
+    bA ~ dnorm(0, 2), 
+    sigma ~ dexp(1)
+  ), data = d2
+)
+precis(m6.10)
+
+# Simulate unobserved influence (grandparents)
+N <- 200 # Number of grandparent-parent-child triads
+b_GP <- 1 # Direct effect of G on P
+b_GC <- 0 # Direct effect of G on C
+b_PC <- 1 # Direct effect of P on C
+b_U <- 2 # Direct effect of U on P and C
+# Draw random observations
+set.seed(1)
+U <- 2 * rbern(N, 0.5) - 1
+G <- rnorm(N)
+P <- rnorm(N, b_GP * G + b_U * U)
+C <- rnorm(N, b_PC * P + b_GC * G + b_U * U)
+d <- data.frame(C = C, P = P, G = G, U = U)
+# Build the model
+m6.11 <- quap(
+  alist(
+    C ~ dnorm(mu, sigma), 
+    mu <- a + b_PC * P + b_GC * G, 
+    a ~ dnorm(0, 1),  
+    c(b_PC, b_GC) ~ dnorm(0, 1), 
+    sigma ~ dexp(1)
+  ), data = d
+)
+precis(m6.11)
+# Regression that conditions also on U
+m6.12 <- quap(
+  alist(
+    C ~ dnorm(mu, sigma), 
+    mu <- a + b_PC * P + b_GC * G + b_U * U, 
+    a ~ dnorm(0, 1), 
+    c(b_PC, b_GC, b_U) ~ dnorm(0, 1), 
+    sigma ~ dexp(1)
+  ), data = d
+)
+precis(m6.12)
+
+### Confronting confounding: 6.29 - 6.31
+# Block the backdoor
+dag_6.1 <- dagitty("dag{
+    U [unobserved]
+    X -> Y
+    X <- U <- A -> C -> Y
+    U -> B <- C
+}")
+adjustmentSets(dag_6.1, exposure = "X", outcome = "Y")
+# Trace backwards, starting at W and ending at D
+dag_6.2 <- dagitty("dag {
+    A -> D
+    A -> M -> D
+    A <- S -> M
+    S -> W -> D
+}")
+adjustmentSets(dag_6.2, exposure = "W", outcome = "D")
+impliedConditionalIndependencies(dag_6.2)
